@@ -1,13 +1,15 @@
 import { Button } from '@openfun/cunningham-react';
 import Image from 'next/image';
-import { ReactElement } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
+import api from 'zotero-api-client';
 import img403 from '@/assets/icons/icon-403.png';
-import { Box, Icon, StyledLink, Text } from '@/components';
+import { Box, Icon, Text } from '@/components';
 import { PageLayout } from '@/layouts';
 import { NextPageWithLayout } from '@/types/next';
+
 
 const StyledButton = styled(Button)`
   width: fit-content;
@@ -15,6 +17,14 @@ const StyledButton = styled(Button)`
 
 const Page: NextPageWithLayout = () => {
   const { t } = useTranslation();
+
+  const fetchFromZotero = useCallback(async () => {
+    const apiKey = '';
+    const myapi = api(apiKey).library('user', 475425); //
+    const itemsResponse = await myapi.items().get();
+
+    console.log(itemsResponse);
+  }, []);
 
   return (
     <Box
@@ -40,11 +50,12 @@ const Page: NextPageWithLayout = () => {
           )}
         </Text>
 
-        <StyledLink href="/">
-          <StyledButton icon={<Icon iconName="house" $color="white" />}>
-            {t('Home')}
-          </StyledButton>
-        </StyledLink>
+        <StyledButton
+          onClick={() => fetchFromZotero()}
+
+          icon={<Icon iconName="house" $color="white" />}>
+          {t('Home')}
+        </StyledButton>
       </Box>
     </Box>
   );
