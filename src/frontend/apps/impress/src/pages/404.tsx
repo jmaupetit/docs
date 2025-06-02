@@ -19,11 +19,17 @@ const Page: NextPageWithLayout = () => {
   const { t } = useTranslation();
 
   const fetchFromZotero = useCallback(async () => {
-    const apiKey = '';
-    const myapi = api(apiKey).library('user', 475425); //
-    const itemsResponse = await myapi.items().get();
+    const apiKey = process.env.NEXT_PUBLIC_ZOTERO_API_KEY;
+    const userId = process.env.NEXT_PUBLIC_ZOTERO_USER_ID;
 
-    console.log(itemsResponse);
+    const myapi = api(apiKey).library('user', userId);
+
+    const response = await myapi.items().get();
+
+    const items = response.getData();
+
+    console.log(items.map(i => i.title));
+
   }, []);
 
   return (
@@ -52,7 +58,6 @@ const Page: NextPageWithLayout = () => {
 
         <StyledButton
           onClick={() => fetchFromZotero()}
-
           icon={<Icon iconName="house" $color="white" />}>
           {t('Home')}
         </StyledButton>
