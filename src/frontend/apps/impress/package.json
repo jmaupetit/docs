@@ -17,9 +17,9 @@
   "dependencies": {
     "@ag-media/react-pdf-table": "2.0.3",
     "@blocknote/code-block": "0.31.1",
-    "blocknote/core": "https://pkg.pr.new/TypeCellOS/BlockNote/@blocknote/core@1736",
+    "@blocknote/core": "https://pkg.pr.new/TypeCellOS/BlockNote/@blocknote/core@1736",
     "@blocknote/mantine": "0.31.1",
-    "blocknote/react": "https://pkg.pr.new/TypeCellOS/BlockNote/@blocknote/react@1736",
+    "@blocknote/react": "https://pkg.pr.new/TypeCellOS/BlockNote/@blocknote/react@1736",
     "@blocknote/xl-docx-exporter": "0.31.1",
     "@blocknote/xl-pdf-exporter": "0.31.1",
     "@emoji-mart/data": "1.2.1",

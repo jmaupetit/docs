@@ -4,8 +4,13 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  checkBlockTypeInSchema,
+  checkInlineContentTypeInSchema,
 } from '@blocknote/core';
 import { DefaultReactSuggestionItem } from '@blocknote/react';
+
+import { bibliographyBlockConfig, referenceInlineContentConfig } from '..';
+
 
 export const getBibliographyReactSlashMenuItems = <
   B extends BlockSchema,
@@ -17,12 +22,11 @@ export const getBibliographyReactSlashMenuItems = <
   const items: DefaultReactSuggestionItem[] = [];
 
   if (
-    // checkInlineContentTypeInSchema(
-    //   'reference',
-    //   referenceInlineContentConfig,
-    //   editor,
-    // )
-    true
+    checkInlineContentTypeInSchema(
+      'reference',
+      referenceInlineContentConfig,
+      editor,
+    )
   ) {
     items.push({
       title: 'Reference',
@@ -34,17 +38,17 @@ export const getBibliographyReactSlashMenuItems = <
         editor.insertInlineContent([
           {
             type: 'reference',
-          } as any,
+          },
         ]);
       },
     });
   }
 
-  // const bibliographyBlockInSchema = checkBlockTypeInSchema(
-  //   'bibliography',
-  //   bibliographyBlockConfig,
-  //   editor,
-  // );
+  const bibliographyBlockInSchema = checkBlockTypeInSchema(
+    'bibliography',
+    bibliographyBlockConfig,
+    editor,
+  );
   let bibliographyBlockAlreadyExists = false;
   editor.forEachBlock((block) => {
     if (block.type === 'bibliography') {
@@ -54,7 +58,7 @@ export const getBibliographyReactSlashMenuItems = <
     return true;
   });
 
-  if (!bibliographyBlockAlreadyExists) {
+  if (bibliographyBlockInSchema && !bibliographyBlockAlreadyExists) {
     items.push({
       title: 'Bibliography',
       subtext: 'Insert a bibliography block',
