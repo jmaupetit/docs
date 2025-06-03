@@ -1,13 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BlockConfig } from '@blocknote/core';
+import { BlockConfig, InlineContentSchema, StyleSchema } from '@blocknote/core';
 import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
 } from '@blocknote/react';
-// @ts-ignore
+// @ts-expect-error `citation-js` does not have types
 import { Cite } from '@citation-js/core';
 import '@citation-js/plugin-csl';
 import '@citation-js/plugin-doi';
@@ -25,28 +25,40 @@ export const bibliographyBlockConfig = {
 } as const satisfies BlockConfig;
 
 export const Bibliography = (
-  props: ReactCustomBlockRenderProps<typeof bibliographyBlockConfig, any, any>,
+  props: ReactCustomBlockRenderProps<
+    typeof bibliographyBlockConfig,
+    InlineContentSchema,
+    StyleSchema
+  >,
 ) => {
-  const [bibliography, setBibliography] = useState<any[]>([]);
+  const [sources, setSources] = useState<
+    {
+      doi: string;
+      format: (format: string) => string;
+    }[]
+  >([]);
 
   useEffect(() => {
     async function fetchBibliography() {
       const dois: string[] = JSON.parse(props.block.props.bibTexJSON);
-      const cites = await Promise.all(dois.map((doi) => Cite.async(doi)));
+      const sources: {
+        doi: string;
+        format: (format: string) => string;
+      }[] = await Promise.all(dois.map((doi) => Cite.async(doi)));
 
-      setBibliography(cites);
+      setSources(sources);
     }
 
-    fetchBibliography();
+    void fetchBibliography();
   }, [props.block.props.bibTexJSON]);
 
   return (
     <div>
       <h2>Bibliography</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-        {bibliography.map((cite: any) => (
-          <li key={cite.id} style={{ marginBottom: '5px' }}>
-            {cite.format('bibliography')}
+        {sources.map((source, index) => (
+          <li key={index} style={{ marginBottom: '5px' }}>
+            {source.format('bibliography')}
           </li>
         ))}
       </ul>

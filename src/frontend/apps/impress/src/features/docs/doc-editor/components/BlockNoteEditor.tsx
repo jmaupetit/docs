@@ -3,18 +3,13 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
-  filterSuggestionItems,
   withPageBreak,
 } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import * as locales from '@blocknote/core/locales';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
-import {
-  SuggestionMenuController,
-  getDefaultReactSlashMenuItems,
-  useCreateBlockNote,
-} from '@blocknote/react';
+import { useCreateBlockNote } from '@blocknote/react';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +30,6 @@ import { BlockNoteSuggestionMenu } from './BlockNoteSuggestionMenu';
 import { BlockNoteToolbar } from './BlockNoteToolBar/BlockNoteToolbar';
 import { BibliographyBlock, CalloutBlock, DividerBlock } from './custom-blocks';
 import { ReferenceInlineContent } from './custom-inline-content';
-import { getBibliographyReactSlashMenuItems } from './slash-menu-items/getBibliographyReactSlashMenuItems';
 
 export const blockNoteSchema = withPageBreak(
   BlockNoteSchema.create({
