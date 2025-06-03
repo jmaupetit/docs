@@ -7,6 +7,10 @@ import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
 } from '@blocknote/react';
+// @ts-ignore
+import { Cite } from '@citation-js/core';
+import '@citation-js/plugin-csl';
+import '@citation-js/plugin-doi';
 import { useEffect, useState } from 'react';
 
 export const bibliographyBlockConfig = {
@@ -23,35 +27,24 @@ export const bibliographyBlockConfig = {
 export const Bibliography = (
   props: ReactCustomBlockRenderProps<typeof bibliographyBlockConfig, any, any>,
 ) => {
-  const [sources, setSources] = useState<any[]>([]);
+  const [bibliography, setBibliography] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchBibliography() {
       const dois: string[] = JSON.parse(props.block.props.bibTexJSON);
+      const cites = await Promise.all(dois.map((doi) => Cite.async(doi)));
 
-      const data = await Promise.all(
-        dois
-          .filter((source) => source)
-          .map((doi) =>
-            fetch(`https://api.datacite.org/dois/${doi}`).then((res) =>
-              res.json(),
-            ),
-          ),
-      );
-
-      setSources(data.filter((source) => source));
+      setBibliography(cites);
     }
 
     fetchBibliography();
   }, [props.block.props.bibTexJSON]);
 
-  // console.log(sources);
-
   return (
     <div>
       <h2>Bibliography</h2>
-      {sources.map((source: any) => (
-        <div key={source.data.attributes.doi}>{source.data.attributes.doi}</div>
+      {bibliography.map((cite: any) => (
+        <div key={cite.id}>{cite.format('bibliography')}</div>
       ))}
     </div>
   );

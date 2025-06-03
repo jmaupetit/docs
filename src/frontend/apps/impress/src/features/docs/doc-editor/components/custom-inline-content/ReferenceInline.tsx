@@ -11,6 +11,10 @@ import {
   useBlockNoteEditor,
   useComponentsContext,
 } from '@blocknote/react';
+// @ts-ignore
+import { Cite } from '@citation-js/core';
+import '@citation-js/plugin-csl';
+import '@citation-js/plugin-doi';
 import {
   useClick,
   // useDismiss,
@@ -86,10 +90,15 @@ const useFloatingClick = () => {
   };
 };
 
-export const Reference = (props: any) => {
-  const editor = useBlockNoteEditor()!;
+export const Reference = (
+  props: ReactCustomInlineContentRenderProps<
+    typeof referenceInlineContentConfig,
+    any
+  >,
+) => {
   const Components = useComponentsContext()!;
 
+  const editor = useBlockNoteEditor()!;
   const referenceDetailsFloating = useFloatingHover();
   const referenceEditFloating = useFloatingClick();
 
@@ -97,22 +106,10 @@ export const Reference = (props: any) => {
 
   const [newDOI, setNewDOI] = useState(citation.doi);
 
-  const [source, setSource] = useState<any>(undefined);
+  const [bibliography, setBibliography] = useState<any>(null);
 
   useEffect(() => {
-    const fetchSource = async () => {
-      const data = await fetch(
-        `https://api.datacite.org/dois/${props.inlineContent.props.doi}`,
-      );
-
-      setSource(await data.json());
-    };
-
-    if (props.inlineContent.props.doi) {
-      fetchSource();
-    } else {
-      setSource(undefined);
-    }
+    Cite.async(props.inlineContent.props.doi).then(setBibliography);
   }, [props.inlineContent.props]);
 
   const applyNewDOI = useCallback(() => {
@@ -127,8 +124,8 @@ export const Reference = (props: any) => {
     let bibliographyBlock: any = undefined;
 
     editor.forEachBlock((block) => {
-      if ((block.type as any) === 'bibliography') {
-        bibliographyBlock = block as any;
+      if (block.type === 'bibliography') {
+        bibliographyBlock = block;
       }
 
       if (bibliographyBlock) {
@@ -154,7 +151,7 @@ export const Reference = (props: any) => {
     }
   }, [citation, editor, newDOI, props]);
 
-  if (!source) {
+  if (!bibliography) {
     return <span>Loading...</span>;
   }
 
@@ -207,27 +204,19 @@ export const Reference = (props: any) => {
     );
   }
 
-  // console.log(source);
-
-  const firstAuthorFormattedName = `${source.data.attributes.creators[0].name
-    .split(', ')
-    .reverse()
-    .join(' ')}${source.data.attributes.creators.length > 1 ? ' et al.' : ''}`;
-  const issuedDate = source.data.attributes.dates.find(
-    (date: any) => date.dateType === 'Issued',
-  ).date;
-
   return (
     <span>
       <span {...referenceDetailsFloating.referenceElementProps}>
-        {`(${firstAuthorFormattedName}, ${issuedDate})`}
+        {bibliography.format('citation')}
       </span>
       {referenceDetailsFloating.isHovered && (
-        <div
-          className="floating"
-          {...referenceDetailsFloating.floatingElementProps}
-        >
-          <div>{firstAuthorFormattedName}</div>
+        <div {...referenceDetailsFloating.floatingElementProps}>
+          {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
+          <div
+            dangerouslySetInnerHTML={{
+              __html: bibliography.format('bibliography'),
+            }}
+          />
         </div>
       )}
     </span>
