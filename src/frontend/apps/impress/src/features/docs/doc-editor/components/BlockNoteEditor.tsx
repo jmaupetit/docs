@@ -2,13 +2,19 @@ import { codeBlock } from '@blocknote/code-block';
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
+  defaultInlineContentSpecs,
+  filterSuggestionItems,
   withPageBreak,
 } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import * as locales from '@blocknote/core/locales';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+  SuggestionMenuController,
+  getDefaultReactSlashMenuItems,
+  useCreateBlockNote,
+} from '@blocknote/react';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,14 +33,21 @@ import { randomColor } from '../utils';
 
 import { BlockNoteSuggestionMenu } from './BlockNoteSuggestionMenu';
 import { BlockNoteToolbar } from './BlockNoteToolBar/BlockNoteToolbar';
-import { CalloutBlock, DividerBlock } from './custom-blocks';
+import { BibliographyBlock, CalloutBlock, DividerBlock } from './custom-blocks';
+import { ReferenceInlineContent } from './custom-inline-content';
+import { getBibliographyReactSlashMenuItems } from './slash-menu-items/getBibliographyReactSlashMenuItems';
 
 export const blockNoteSchema = withPageBreak(
   BlockNoteSchema.create({
     blockSpecs: {
       ...defaultBlockSpecs,
+      bibliography: BibliographyBlock,
       callout: CalloutBlock,
       divider: DividerBlock,
+    },
+    inlineContentSpecs: {
+      ...defaultInlineContentSpecs,
+      reference: ReferenceInlineContent,
     },
   }),
 );
@@ -205,7 +218,25 @@ export const BlockNoteEditorVersion = ({
 
   return (
     <Box $css={cssEditor(readOnly)} className="--docs--editor-container">
-      <BlockNoteView editor={editor} editable={!readOnly} theme="light" />
+      <BlockNoteView
+        editor={editor}
+        editable={!readOnly}
+        slashMenu={false}
+        theme="light"
+      >
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) =>
+            filterSuggestionItems(
+              [
+                ...getDefaultReactSlashMenuItems(editor),
+                ...getBibliographyReactSlashMenuItems(editor),
+              ],
+              query,
+            )
+          }
+        />
+      </BlockNoteView>
     </Box>
   );
 };
