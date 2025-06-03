@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { Icon } from '@/components';
 import {
   Block,
   BlockNoteEditor,
@@ -237,9 +238,25 @@ export const Reference = (
   if (!source) {
     return (
       <span>
-        <button {...referenceEditFloating.referenceElementProps}>
-          Add Reference
-        </button>
+        <div className="bn-file-block-content-wrapper">
+          <div
+            className="bn-add-file-button"
+            {...referenceEditFloating.referenceElementProps}
+            style={{
+              backgroundColor: 'var(--c--theme--colors--greyscale-100)',
+              color: '#7d797a',
+              fontSize: '0.9rem',
+              padding: '0.8rem',
+              borderRadius: 'var(--c--theme--spacings--3xs)',
+              display: 'flex',
+              gap: '0.5rem',
+              cursor: 'pointer',
+            }}
+          >
+            <Icon iconName="link" $color="#7d797a" />
+            <p className="bn-add-file-button-text">Add Reference</p>
+          </div>
+        </div>
         {referenceEditFloating.isOpen && (
           <Components.FilePanel.Root
             className="bn-panel reference-panel"
@@ -285,7 +302,10 @@ export const Reference = (
 
   return (
     <span>
-      <span {...referenceDetailsFloating.referenceElementProps}>
+      <span
+        {...referenceDetailsFloating.referenceElementProps}
+        style={{ cursor: 'pointer', color: 'var(--mantine-color-anchor)' }}
+      >
         {source.format('citation')}
       </span>
       {referenceDetailsFloating.isHovered && (
