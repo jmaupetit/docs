@@ -218,25 +218,7 @@ export const BlockNoteEditorVersion = ({
 
   return (
     <Box $css={cssEditor(readOnly)} className="--docs--editor-container">
-      <BlockNoteView
-        editor={editor}
-        editable={!readOnly}
-        slashMenu={false}
-        theme="light"
-      >
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={async (query) =>
-            filterSuggestionItems(
-              [
-                ...getDefaultReactSlashMenuItems(editor),
-                ...getBibliographyReactSlashMenuItems(editor),
-              ],
-              query,
-            )
-          }
-        />
-      </BlockNoteView>
+      <BlockNoteView editor={editor} editable={!readOnly} theme="light" />
     </Box>
   );
 };

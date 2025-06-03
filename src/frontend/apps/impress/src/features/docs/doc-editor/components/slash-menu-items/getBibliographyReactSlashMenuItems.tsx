@@ -29,6 +29,7 @@ export const getBibliographyReactSlashMenuItems = <
       subtext: 'Reference to a bibliography block source',
       // icon: <RiLink size={18} />,
       aliases: ['ciataion', 'cite', 'bib'],
+      group: 'Citation',
       onItemClick: () => {
         editor.insertInlineContent([
           {
@@ -58,6 +59,7 @@ export const getBibliographyReactSlashMenuItems = <
       title: 'Bibliography',
       subtext: 'Insert a bibliography block',
       // icon: <RiFileListFill size={18} />,
+      group: 'Citation',
       onItemClick: () => {
         editor.insertBlocks(
           [
