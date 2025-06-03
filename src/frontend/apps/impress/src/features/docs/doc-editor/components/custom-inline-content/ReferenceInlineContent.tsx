@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import {
   Block,
   BlockNoteEditor,
@@ -28,8 +29,6 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-
-import { Icon } from '@/components';
 
 import { bibliographyBlockConfig } from '../custom-blocks';
 
@@ -239,25 +238,23 @@ export const Reference = (
   if (!source) {
     return (
       <span>
-        <div className="bn-file-block-content-wrapper">
-          <div
-            className="bn-add-file-button"
-            {...referenceEditFloating.referenceElementProps}
-            style={{
-              backgroundColor: 'var(--c--theme--colors--greyscale-100)',
-              color: '#7d797a',
-              fontSize: '0.9rem',
-              padding: '0.8rem',
-              borderRadius: 'var(--c--theme--spacings--3xs)',
-              display: 'flex',
-              gap: '0.5rem',
-              cursor: 'pointer',
-            }}
-          >
-            <Icon iconName="link" $color="#7d797a" />
-            <p className="bn-add-file-button-text">Add Reference</p>
-          </div>
-        </div>
+        <button
+          {...referenceEditFloating.referenceElementProps}
+          style={{
+            backgroundColor: 'var(--c--theme--colors--greyscale-100)',
+            color: '#7d797a',
+            fontSize: '0.9rem',
+            paddingTop: '0.4rem',
+            paddingBottom: '0.4rem',
+            paddingLeft: '0.6rem',
+            paddingRight: '0.6rem',
+            borderRadius: 'var(--c--theme--spacings--3xs)',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <p>Add Reference</p>
+        </button>
         {referenceEditFloating.isOpen && (
           <Components.FilePanel.Root
             className="bn-panel reference-panel"
