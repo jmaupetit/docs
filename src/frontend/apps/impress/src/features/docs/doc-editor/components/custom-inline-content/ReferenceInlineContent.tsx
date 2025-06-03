@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Icon } from '@/components';
 import {
   Block,
   BlockNoteEditor,
@@ -29,6 +28,8 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { useCallback, useEffect, useState } from 'react';
+
+import { Icon } from '@/components';
 
 import { bibliographyBlockConfig } from '../custom-blocks';
 
