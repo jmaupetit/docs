@@ -289,9 +289,20 @@ export const Reference = (
         {source.format('citation')}
       </span>
       {referenceDetailsFloating.isHovered && (
-        <div {...referenceDetailsFloating.floatingElementProps}>
+        <div
+          {...referenceDetailsFloating.floatingElementProps}
+          style={{
+            position: 'absolute',
+          }}
+        >
           {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
           <div
+            style={{
+              backgroundColor: 'var(--c--theme--colors--greyscale-100)',
+              padding: '0.5rem',
+              fontSize: '0.75rem',
+              borderRadius: '0.25rem',
+            }}
             dangerouslySetInnerHTML={{
               __html: source.format('bibliography'),
             }}

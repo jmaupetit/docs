@@ -43,9 +43,13 @@ export const Bibliography = (
   return (
     <div>
       <h2>Bibliography</h2>
-      {bibliography.map((cite: any) => (
-        <div key={cite.id}>{cite.format('bibliography')}</div>
-      ))}
+      <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+        {bibliography.map((cite: any) => (
+          <li key={cite.id} style={{ marginBottom: '5px' }}>
+            {cite.format('bibliography')}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
