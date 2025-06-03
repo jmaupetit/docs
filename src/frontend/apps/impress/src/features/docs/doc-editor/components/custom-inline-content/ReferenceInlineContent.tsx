@@ -1,17 +1,22 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { InlineContentConfig } from '@blocknote/core';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
+  Block,
+  BlockNoteEditor,
+  BlockSchemaWithBlock,
+  InlineContentConfig,
+  InlineContentSchemaWithInlineContent,
+  StyleSchema,
+  checkBlockTypeInSchema,
+} from '@blocknote/core';
+import {
+  ReactCustomInlineContentRenderProps,
   createReactInlineContentSpec,
-  useBlockNoteEditor,
   useComponentsContext,
 } from '@blocknote/react';
-// @ts-ignore
+// @ts-expect-error `citation-js` does not have types
 import { Cite } from '@citation-js/core';
 import '@citation-js/plugin-csl';
 import '@citation-js/plugin-doi';
@@ -23,6 +28,8 @@ import {
   useInteractions,
 } from '@floating-ui/react';
 import { useCallback, useEffect, useState } from 'react';
+
+import { bibliographyBlockConfig } from '../custom-blocks';
 
 export const referenceInlineContentConfig = {
   type: 'reference',
@@ -93,37 +100,84 @@ const useFloatingClick = () => {
 export const Reference = (
   props: ReactCustomInlineContentRenderProps<
     typeof referenceInlineContentConfig,
-    any
+    StyleSchema
   >,
 ) => {
-  const Components = useComponentsContext()!;
+  const Components = useComponentsContext();
+  if (!Components) {
+    throw new Error(
+      'Components context is not available. Make sure this component is used within a BlockNote editor.',
+    );
+  }
 
-  const editor = useBlockNoteEditor()!;
   const referenceDetailsFloating = useFloatingHover();
   const referenceEditFloating = useFloatingClick();
 
-  const citation = props.inlineContent.props;
-
-  const [newDOI, setNewDOI] = useState(citation.doi);
-
-  const [bibliography, setBibliography] = useState<any>(null);
+  const [source, setSource] = useState<
+    | {
+        doi: string;
+        format: (format: string) => string;
+      }
+    | undefined
+  >(undefined);
+  const [newDOI, setNewDOI] = useState(props.inlineContent.props.doi);
 
   useEffect(() => {
-    Cite.async(props.inlineContent.props.doi).then(setBibliography);
+    const fetchSource = async () => {
+      const source = await Cite.async(props.inlineContent.props.doi);
+      setSource(source);
+    };
+
+    if (props.inlineContent.props.doi) {
+      void fetchSource();
+    } else {
+      setSource(undefined);
+    }
   }, [props.inlineContent.props]);
 
   const applyNewDOI = useCallback(() => {
     props.updateInlineContent({
       type: 'reference',
       props: {
-        ...citation,
         doi: newDOI,
       },
     });
 
-    let bibliographyBlock: any = undefined;
+    if (
+      !checkBlockTypeInSchema(
+        'bibliography',
+        bibliographyBlockConfig,
+        props.editor,
+      )
+    ) {
+      return;
+    }
 
-    editor.forEachBlock((block) => {
+    type BlockSchemaWithBibliography = BlockSchemaWithBlock<
+      'bibliography',
+      typeof bibliographyBlockConfig
+    >;
+    type InlineContentSchemaWithReference =
+      InlineContentSchemaWithInlineContent<
+        'reference',
+        typeof referenceInlineContentConfig
+      >;
+
+    let bibliographyBlock:
+      | Block<
+          BlockSchemaWithBibliography,
+          InlineContentSchemaWithReference,
+          StyleSchema
+        >
+      | undefined = undefined;
+
+    (
+      props.editor as BlockNoteEditor<
+        BlockSchemaWithBibliography,
+        InlineContentSchemaWithReference,
+        StyleSchema
+      >
+    ).forEachBlock((block) => {
       if (block.type === 'bibliography') {
         bibliographyBlock = block;
       }
@@ -136,26 +190,51 @@ export const Reference = (
     });
 
     if (!bibliographyBlock) {
-      editor.insertBlocks(
+      (
+        props.editor as BlockNoteEditor<
+          BlockSchemaWithBibliography,
+          InlineContentSchemaWithReference,
+          StyleSchema
+        >
+      ).insertBlocks(
         [
           {
-            type: 'bibliography' as any,
+            type: 'bibliography',
             props: {
               bibTexJSON: JSON.stringify([newDOI]),
-            } as any,
+            },
           },
         ],
-        editor.document[editor.document.length - 1],
+        props.editor.document[props.editor.document.length - 1],
         'after',
       );
+    } else {
+      const bibTexJSON = JSON.parse(
+        (
+          bibliographyBlock as Block<
+            BlockSchemaWithBibliography,
+            InlineContentSchemaWithReference,
+            StyleSchema
+          >
+        ).props.bibTexJSON,
+      );
+      if (!bibTexJSON.includes(newDOI)) {
+        bibTexJSON.push(newDOI);
+        (
+          props.editor as BlockNoteEditor<
+            BlockSchemaWithBibliography,
+            InlineContentSchemaWithReference,
+            StyleSchema
+          >
+        ).updateBlock(bibliographyBlock, {
+          type: 'bibliography',
+          props: { bibTexJSON: JSON.stringify(bibTexJSON) },
+        });
+      }
     }
-  }, [citation, editor, newDOI, props]);
+  }, [newDOI, props]);
 
-  if (!bibliography) {
-    return <span>Loading...</span>;
-  }
-
-  if (!citation.doi) {
+  if (!source) {
     return (
       <span>
         <button {...referenceEditFloating.referenceElementProps}>
@@ -207,14 +286,14 @@ export const Reference = (
   return (
     <span>
       <span {...referenceDetailsFloating.referenceElementProps}>
-        {bibliography.format('citation')}
+        {source.format('citation')}
       </span>
       {referenceDetailsFloating.isHovered && (
         <div {...referenceDetailsFloating.floatingElementProps}>
           {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
           <div
             dangerouslySetInnerHTML={{
-              __html: bibliography.format('bibliography'),
+              __html: source.format('bibliography'),
             }}
           />
         </div>

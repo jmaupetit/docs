@@ -1,1 +1,1 @@
-export * from './ReferenceInline';
+export * from './ReferenceInlineContent';
